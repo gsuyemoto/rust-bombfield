@@ -5,7 +5,9 @@ use std::rc::Rc;
 
 slint::include_modules!();
 
-const SIZE: u64 = 81;
+const SIZE: i32 = 81;
+const NUM_ROWS: i32 = 9;
+const NUM_COLS: i32 = 9;
 const BOMB: u8 = b"*"[0];
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen(start))]
@@ -16,6 +18,10 @@ fn main() {
     console_error_panic_hook::set_once();
 
     let ui = App::new();
+    let mut num_to_win: i32 = SIZE;
+
+    ui.set_bombfield_row(NUM_ROWS);
+    ui.set_bombfield_col(NUM_COLS);
 
     // get a new random bomb field
     let field_rows: usize = ui.get_bombfield_row().try_into().unwrap();
@@ -31,6 +37,7 @@ fn main() {
         if tile.eq(&BOMB) {
             icon    = "💣".to_string();
             is_bomb = true;
+            num_to_win -= 1;
         }
         else {
             icon    = tile.escape_ascii().to_string();
@@ -45,6 +52,7 @@ fn main() {
 
     let field = Rc::new(VecModel::from(bomb_field));
     ui.set_bombfield_list(field.clone().into());
+    ui.set_num_to_win(num_to_win);
 
     ui.run();
 }

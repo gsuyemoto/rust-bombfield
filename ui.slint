@@ -6,8 +6,8 @@ struct BombData := {
 }
 
 global BombField := {
-    property <int> row: 9;
-    property <int> col: 9;
+    property <int> num-to-win;
+    property <bool> is-lost;
 }
 
 BombTile := Rectangle {
@@ -32,6 +32,13 @@ BombTile := Rectangle {
         clicked => { 
             if (!is-revealed) {
                 is-revealed = true;
+
+                if (is-bomb) {
+                    BombField.is-lost = true;
+                }
+                else {
+                    BombField.num-to-win -= 1;
+                }
             }
         }
     }
@@ -49,18 +56,18 @@ BombTile := Rectangle {
 export App := Window {
     title: "💣 Bomb Field 😈";
 
-    property <int>          bombfield-col <=> BombField.col;
-    property <int>          bombfield-row <=> BombField.row;
+    property <int>          num-to-win <=> BombField.num-to-win;
+    property <int>          bombfield-col;
+    property <int>          bombfield-row;
     property <[BombData]>   bombfield-list;
 
-    property <bool>         disable-tiles;
     property <length>       tile-size: 50px;
     property <length>       tile-spacing: 5px;
     property <int>          current-index: -1;
 
     // "column_count + 1" and "row_count + 1" are the number of gaps between the tiles.
-    width: (BombField.col * tile-size) + ((BombField.col + 1) * tile-spacing);
-    height: (BombField.row * tile-size) + ((BombField.row + 1) * tile-spacing);
+    width: (bombfield-col * tile-size) + ((bombfield-col + 1) * tile-spacing);
+    height: (bombfield-row * tile-size) + ((bombfield-row + 1) * tile-spacing);
 
     for tile[i] in (bombfield-row*bombfield-col): BombTile {
         x: tile-spacing + mod(i, bombfield-col) * (tile-size + tile-spacing);
@@ -70,5 +77,19 @@ export App := Window {
         index: i;
         label: root.bombfield-list[i].icon;
         is-bomb: root.bombfield-list[i].is-bomb;
+    }
+
+    lost := Image {
+        height: parent.height;
+        source: @image-url("assets/bomb.jpg");
+        width: BombField.is-lost ? parent.width : 0px;
+        animate width { duration: 250ms; easing: ease-in; }
+    }
+    
+    won:= Image {
+        height: parent.height;
+        source: @image-url("assets/win.jpg");
+        width: BombField.num-to-win == 0 ? parent.width : 0px;
+        animate width { duration: 250ms; easing: ease-in; }
     }
 }
