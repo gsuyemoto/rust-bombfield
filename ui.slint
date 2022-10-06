@@ -1,0 +1,67 @@
+import { Button } from "std-widgets.slint";
+
+global BombField := {
+    property <int> row: 9;
+    property <int> col: 9;
+    property <[int]> list;
+}
+
+BombTile := Rectangle {
+    callback clicked <=> bn.clicked;
+
+    property <string> label;
+    property <bool> open_curtain;
+    property <bool> is_revealed;
+    property <bool> is_blank;
+    property <bool> is_bomb;
+    property <int> index;
+
+    height: 50px;
+    width: 50px;
+    border-radius: 8px;
+    background: is-revealed ? #34CE57 : #3960D5;
+    animate background { duration: 800ms; }
+
+    bn := Button {
+        text: label;
+    }
+
+    // curtain
+    Rectangle {
+        border-radius: 8px;
+        background: #193076;
+        width: open_curtain ? 0px : parent.width;
+        height: parent.height;
+        animate width { duration: 100ms; easing: ease-in; }
+    }
+}
+
+export App := Window {
+    title: "💣 Bombfield";
+
+    property <int>          bombfield-col <=> BombField.col;
+    property <int>          bombfield-row <=> BombField.row;
+    property <[int]>        bombfield-list <=> BombField.list;
+
+    property <bool>         disable-tiles;
+    property <length>       tile-size: 50px;
+    property <length>       tile-spacing: 5px;
+    property <int>          current-index: -1;
+
+    // "column_count + 1" and "row_count + 1" are the number of gaps between the tiles.
+    width: (BombField.col * tile-size) + ((BombField.col + 1) * tile-spacing);
+    height: (BombField.row * tile-size) + ((BombField.row + 1) * tile-spacing);
+    
+    GridLayout { 
+        // spacing: root.tile-spacing;
+
+        // for r in root.bombfield-row: Row {
+        //     for c in root.bombfield-col: BombTile {
+        //         width: root.tile-size;
+        //         height: root.tile-size;
+        //         index: root.current-index + 1;
+        //         label: root.bombfield-list[index];
+        //     }
+        // }
+    }
+}
