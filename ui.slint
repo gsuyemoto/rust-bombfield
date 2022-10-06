@@ -3,19 +3,19 @@ import { Button } from "std-widgets.slint";
 global BombField := {
     property <int> row: 9;
     property <int> col: 9;
-    property <[int]> list;
+    property <[string]> list;
 }
 
 BombTile := Rectangle {
     callback clicked <=> bn.clicked;
 
     property <string> label;
-    property <bool> open_curtain;
-    property <bool> is_revealed;
-    property <bool> is_blank;
-    property <bool> is_bomb;
+    property <bool> is-revealed;
+    property <bool> is-blank;
+    property <bool> is-bomb;
     property <int> index;
 
+    clip: true;
     height: 50px;
     width: 50px;
     border-radius: 8px;
@@ -24,13 +24,19 @@ BombTile := Rectangle {
 
     bn := Button {
         text: label;
+
+        clicked => { 
+            if (!is-revealed) {
+                is-revealed = true;
+            }
+        }
     }
 
     // curtain
     Rectangle {
         border-radius: 8px;
         background: #193076;
-        width: open_curtain ? 0px : parent.width;
+        width: is-revealed ? 0px : parent.width;
         height: parent.height;
         animate width { duration: 100ms; easing: ease-in; }
     }
@@ -41,7 +47,7 @@ export App := Window {
 
     property <int>          bombfield-col <=> BombField.col;
     property <int>          bombfield-row <=> BombField.row;
-    property <[int]>        bombfield-list <=> BombField.list;
+    property <[string]>     bombfield-list <=> BombField.list;
 
     property <bool>         disable-tiles;
     property <length>       tile-size: 50px;
@@ -51,17 +57,13 @@ export App := Window {
     // "column_count + 1" and "row_count + 1" are the number of gaps between the tiles.
     width: (BombField.col * tile-size) + ((BombField.col + 1) * tile-spacing);
     height: (BombField.row * tile-size) + ((BombField.row + 1) * tile-spacing);
-    
-    GridLayout { 
-        // spacing: root.tile-spacing;
 
-        // for r in root.bombfield-row: Row {
-        //     for c in root.bombfield-col: BombTile {
-        //         width: root.tile-size;
-        //         height: root.tile-size;
-        //         index: root.current-index + 1;
-        //         label: root.bombfield-list[index];
-        //     }
-        // }
+    for tile[i] in (bombfield-row*bombfield-col): BombTile {
+        x: tile-spacing + mod(i, bombfield-col) * (tile-size + tile-spacing);
+        y: tile-spacing + floor(i / bombfield-row) * (tile-size + tile-spacing);
+        width: tile-size;
+        height: tile-size;
+        index: i;
+        label: root.bombfield-list[i];
     }
 }

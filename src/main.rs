@@ -1,9 +1,12 @@
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
+use slint::{Model, VecModel, SharedString};
+use std::rc::Rc;
 
 slint::include_modules!();
 
 const size: u64 = 81;
+const bomb: u8 = b"*"[0];
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen(start))]
 fn main() {
@@ -17,13 +20,30 @@ fn main() {
     // get a new random bomb field
     let field_rows: usize = ui.get_bombfield_row().try_into().unwrap();
     let field_cols: usize = ui.get_bombfield_col().try_into().unwrap();
-    let bomb_field = create(field_rows, field_cols);
+    let answers: Vec<u8> = create(field_rows, field_cols);
+
+    let mut bomb_field: Vec<SharedString> = ui.get_bombfield_list().iter().collect();
+
+    for tile in answers.iter() {
+        let icon: String;
+
+        if tile.eq(&bomb) {
+            icon = "💣".to_string();
+        }
+        else {
+            icon = tile.escape_ascii().to_string();
+        }
+
+        bomb_field.push(SharedString::from(icon));
+    }
+
+    let field = Rc::new(VecModel::from(bomb_field));
+    ui.set_bombfield_list(field.clone().into());
 
     ui.run();
 }
 
 fn create(row: usize, col: usize) -> Vec<u8> {
-    let bomb: u8 = b"*"[0];
     let space: u8 = b" "[0];
     let one: u8 = b"1"[0];
     
