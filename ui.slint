@@ -1,9 +1,13 @@
 import { Button } from "std-widgets.slint";
 
+struct BombData := {
+    icon: string,
+    is-bomb: bool,
+}
+
 global BombField := {
     property <int> row: 9;
     property <int> col: 9;
-    property <[string]> list;
 }
 
 BombTile := Rectangle {
@@ -43,11 +47,11 @@ BombTile := Rectangle {
 }
 
 export App := Window {
-    title: "💣 Bombfield";
+    title: "💣 Bomb Field 😈";
 
     property <int>          bombfield-col <=> BombField.col;
     property <int>          bombfield-row <=> BombField.row;
-    property <[string]>     bombfield-list <=> BombField.list;
+    property <[BombData]>   bombfield-list;
 
     property <bool>         disable-tiles;
     property <length>       tile-size: 50px;
@@ -64,6 +68,7 @@ export App := Window {
         width: tile-size;
         height: tile-size;
         index: i;
-        label: root.bombfield-list[i];
+        label: root.bombfield-list[i].icon;
+        is-bomb: root.bombfield-list[i].is-bomb;
     }
 }

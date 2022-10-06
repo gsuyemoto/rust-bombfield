@@ -5,8 +5,8 @@ use std::rc::Rc;
 
 slint::include_modules!();
 
-const size: u64 = 81;
-const bomb: u8 = b"*"[0];
+const SIZE: u64 = 81;
+const BOMB: u8 = b"*"[0];
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen(start))]
 fn main() {
@@ -22,19 +22,25 @@ fn main() {
     let field_cols: usize = ui.get_bombfield_col().try_into().unwrap();
     let answers: Vec<u8> = create(field_rows, field_cols);
 
-    let mut bomb_field: Vec<SharedString> = ui.get_bombfield_list().iter().collect();
+    let mut bomb_field: Vec<BombData> = ui.get_bombfield_list().iter().collect();
 
     for tile in answers.iter() {
         let icon: String;
+        let is_bomb: bool;
 
-        if tile.eq(&bomb) {
-            icon = "💣".to_string();
+        if tile.eq(&BOMB) {
+            icon    = "💣".to_string();
+            is_bomb = true;
         }
         else {
-            icon = tile.escape_ascii().to_string();
+            icon    = tile.escape_ascii().to_string();
+            is_bomb = false;
         }
 
-        bomb_field.push(SharedString::from(icon));
+        bomb_field.push( BombData { 
+            icon: SharedString::from(icon),
+            is_bomb: is_bomb, 
+        });
     }
 
     let field = Rc::new(VecModel::from(bomb_field));
@@ -48,26 +54,26 @@ fn create(row: usize, col: usize) -> Vec<u8> {
     let one: u8 = b"1"[0];
     
     let mut field: Vec<u8> = Vec::new();
-    let mut ans: Vec<u8> = vec![space; size as usize];
+    let mut ans: Vec<u8> = vec![space; SIZE as usize];
     
     // create new random field
-    for i in 0..size {
-        let mut seeds = [0u8; size as usize];
+    for i in 0..SIZE {
+        let mut seeds = [0u8; SIZE as usize];
         getrandom::getrandom(&mut seeds).unwrap();
         let mut rng = oorandom::Rand32::new(seeds[i as usize] as u64);
 
         match rng.rand_range(0..10) {
-            0 => field.push(bomb),
+            0 => field.push(BOMB),
             _ => field.push(space),
         }
     }
 
     let col_size: i32 = col.try_into().unwrap();
-    let field_size: i32 = size.try_into().unwrap();
+    let field_size: i32 = SIZE.try_into().unwrap();
     
     for (i, field_pt) in field.iter().enumerate() {
-        if field_pt.eq(&bomb) {
-            ans[i] = bomb;
+        if field_pt.eq(&BOMB) {
+            ans[i] = BOMB;
             
             let index: i32 = i.try_into().unwrap();
             let mut affected_pts: Vec<i32> = Vec::new();
