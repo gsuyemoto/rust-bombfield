@@ -1,0 +1,12 @@
+{
+  "name": "bombfield-wasm",
+  "version": "0.1.0",
+  "files": [
+    "bombfield_wasm_bg.wasm",
+    "bombfield_wasm.js",
+    "bombfield_wasm.d.ts"
+  ],
+  "module": "bombfield_wasm.js",
+  "types": "bombfield_wasm.d.ts",
+  "sideEffects": false
+}
