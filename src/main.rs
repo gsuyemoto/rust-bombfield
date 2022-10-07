@@ -11,7 +11,7 @@ const NUM_COLS: i32 = 9;
 const BOMB: u8 = b"*"[0];
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen(start))]
-fn main() {
+pub fn main() {
     // This provides better error messages in debug mode.
     // It's disabled in release mode so it doesn't bloat up the file size.
     #[cfg(all(debug_assertions, target_arch = "wasm32"))]
